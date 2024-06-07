@@ -1,5 +1,7 @@
-from typing import Any, Callable, Sequence, Mapping, Union, Type
-from typing_extensions import get_args
+"""Contains functions for validating basic type, Unions, Sequences, Mappings, and dataclasses.
+"""
+
+from typing import Any, Callable, Sequence, Mapping, Union, Type, get_args
 from dataclasses import is_dataclass, fields
 
 
@@ -56,6 +58,16 @@ def _validate_dataclass(data: Any, datatype: Type) -> str | None:
 
 
 def validate(data: Any, datatype: Type[Any]) -> str | None:
+    """Validates the given data to the given data type.
+
+    Args:
+        data (Any): the data to validate
+        datatype (Type[Any]): the datatype to validate data on
+
+    Returns:
+        Either a validation message if the data is not valid based on the given type,
+        or None
+    """
     if datatype in _basic_type_validators:
         return _basic_type_validators[datatype](data)
     if datatype == Union:
