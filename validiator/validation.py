@@ -1,4 +1,5 @@
-"""Contains functions for validating basic type, Unions, Sequences, Mappings, and dataclasses.
+"""Contains functions for validating basic type, Unions,
+Sequences, Mappings, and dataclasses.
 """
 
 from typing import Any, Callable, Sequence, Mapping, Union, Type, get_args
@@ -53,7 +54,10 @@ def _validate_dataclass(data: Any, datatype: Type) -> str | None:
         field_name = field.name
         mesg = validate(data.get(field_name), field_type)
         if mesg:
-            return f"Value {data.get(field_name)} for field {field_name} of type {field_type} in {datatype}"
+            return (
+                f"Value {data.get(field_name)} is not valid for"
+                f"field {field_name} of type {field_type} in {datatype}"
+            )
     return None
 
 
@@ -65,7 +69,8 @@ def validate(data: Any, datatype: Type[Any]) -> str | None:
         datatype (Type[Any]): the datatype to validate data on
 
     Returns:
-        Either a validation message if the data is not valid based on the given type,
+        Either a validation message if the data is not
+        valid based on the given type,
         or None
     """
     if datatype in _basic_type_validators:
@@ -79,5 +84,6 @@ def validate(data: Any, datatype: Type[Any]) -> str | None:
     if is_dataclass(datatype):
         return _validate_dataclass(data, datatype)
     raise ValueError(
-        f"Cannot validate type {datatype} (str, int, float, bool, Union, Sequence, Mapping, dataclasses are supported)"
+        f"Cannot validate type {datatype} (must use str, int, float,"
+        "bool, Union, Sequence, Mapping, or dataclasses using these types)"
     )
