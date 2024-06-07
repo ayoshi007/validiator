@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+requires-python = ">= 3.10"
+name = "validiator"
+version = "0.1.0"
+authors = [
+    {name = "ayoshi007"}
+]
+description = "A no-dependency data validation and serialization library written in pure Python"
+
