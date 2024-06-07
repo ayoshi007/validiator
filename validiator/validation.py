@@ -1,5 +1,5 @@
 from typing import Any, Callable, Sequence, Mapping, Union, Type
-from typing_extensions import get_args, get_origin
+from typing_extensions import get_args
 from dataclasses import is_dataclass, fields
 
 
@@ -15,7 +15,7 @@ def _validate_basic_type(datatype: Type) -> Callable[[Any], str | None]:
 _basic_type_validators = {t: _validate_basic_type(t) for t in (str, int, float, bool)}
 
 
-def _validate_union(data: Any, datatype: Union) -> str | None:
+def _validate_union(data: Any, datatype: Type[Union[Any, None]]) -> str | None:
     possible_types = get_args(datatype)
     matched_type = None
     for t in possible_types:
