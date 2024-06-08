@@ -2,7 +2,7 @@
 lists, dicts, and dataclasses.
 """
 
-from typing import Any, Callable, List, Mapping, Sequence, Union, Type, get_args, get_origin
+from typing import Any, Callable, Sequence, Mapping, Union, Type, get_args, get_origin
 from dataclasses import is_dataclass, fields
 
 
@@ -15,8 +15,7 @@ def _validate_basic_type(datatype: Type) -> Callable[[Any], str | None]:
     return basic_type_validator
 
 
-_basic_type_validators = {t: _validate_basic_type(
-    t) for t in (str, int, float, bool)}
+_basic_type_validators = {t: _validate_basic_type(t) for t in (str, int, float, bool)}
 
 
 def _validate_union(data: Any, datatype: Type[Union[Any, None]]) -> str | None:
@@ -31,7 +30,7 @@ def _validate_union(data: Any, datatype: Type[Union[Any, None]]) -> str | None:
     return f"'{data}' is not of type {possible_types}"
 
 
-def _validate_list(data: Any, datatype: Type[List]) -> str | None:
+def _validate_list(data: Any, datatype: type[list]) -> str | None:
     if not isinstance(data, Sequence):
         return "Data is not a sequence type"
     sequence_type = get_args(datatype)[0]
@@ -89,6 +88,10 @@ def validate(data: Any, datatype: Type[Any]) -> str | None:
         return _validate_list(data, datatype)
     if original_type == dict:
         return _validate_dict(data, datatype)
+    if original_type == tuple:
+        pass
+    if original_type == set:
+        pass
     raise ValueError(
         f"Cannot validate type {datatype} (must use str, int, float,"
         "bool, List, Dict, Union, or dataclasses using these types)"
