@@ -119,25 +119,123 @@ def test_validate_dictionaries(data, datatype, should_fail: bool):
     ["data", "datatype", "should_fail"],
     [
         pytest.param(
-            {"name": "name", "age": 1, "married": False,
-             "income": 10.5, "emails": [], "relationships": {}, "favorite_quote": "To be or not to be"},
+            {
+                "name": "name",
+                "age": 1,
+                "married": False,
+                "income": 10.5,
+                "emails": [],
+                "relationships": {},
+                "favorite_quote": "To be or not to be",
+            },
             SamplePerson,
             False,
             id="good_dataclass",
         ),
         pytest.param(
-            {"name": "name", "age": 1, "married": False,
-             "income": 10.5, "emails": [], "relationships": {}},
+            {
+                "name": "name",
+                "age": 1,
+                "married": False,
+                "income": 10.5,
+                "emails": [],
+                "relationships": {},
+            },
             SamplePerson,
             False,
             id="good_dataclass_optional_field",
         ),
         pytest.param(
-            {"age": 1, "married": False,
-             "income": 10.5, "emails": [], "relationships": {}},
+            {
+                "age": 1,
+                "married": False,
+                "income": 10.5,
+                "emails": [],
+                "relationships": {},
+            },
             SamplePerson,
             True,
-            id="good_dataclass_optional_field",
+            id="bad_dataclass_missing_required_field",
+        ),
+        pytest.param(
+            {
+                "name": 5,
+                "age": 1,
+                "married": False,
+                "income": 10.5,
+                "emails": [],
+                "relationships": {},
+            },
+            SamplePerson,
+            True,
+            id="bad_dataclass_incorrect_type",
+        ),
+        pytest.param(
+            {
+                "people": [
+                    {
+                        "name": "name",
+                        "age": 1,
+                        "married": False,
+                        "income": 10.5,
+                        "emails": [],
+                        "relationships": {},
+                    }
+                ]
+            },
+            SampleGroup,
+            False,
+            id="good_dataclass_composed_dataclass",
+        ),
+        pytest.param(
+            {
+                "people": [
+                    {
+                        "name": 1,
+                        "age": 1,
+                        "married": False,
+                        "income": 10.5,
+                        "emails": [],
+                        "relationships": {},
+                    }
+                ]
+            },
+            SampleGroup,
+            True,
+            id="bad_dataclass_bad_composed_dataclass",
+        ),
+        pytest.param(
+            {
+                "legal_name": 5,
+                "age": 1,
+                "married": False,
+                "income": 10.5,
+                "emails": [],
+                "relationships": {},
+            },
+            SamplePerson,
+            True,
+            id="bad_dataclass_incorrect_field",
+        ),
+        pytest.param(
+            {
+                "name": "name",
+                "age": 1,
+                "married": False,
+                "income": 10.5,
+                "emails": [],
+                "relationships": {},
+                "favorite_drink": "coffee",
+            },
+            SamplePerson,
+            True,
+            id="bad_dataclass_extra_field",
+        ),
+        pytest.param(
+            ["name", "age"],
+            SamplePerson,
+            True,
+            id="list_vs_dataclass",
         ),
     ],
 )

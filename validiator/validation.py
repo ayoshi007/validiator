@@ -53,7 +53,11 @@ def _validate_dict(data: Any, datatype: Type) -> str | None:
     return None
 
 
-def _validate_dataclass(data: Any, datatype: Type) -> str | None:
+def _validate_dataclass(data: Mapping[str, Any], datatype: Type) -> str | None:
+    is_not_string_dict = validate(data, dict[str, Any])
+    if is_not_string_dict:
+        return f"Data is not a string-keyed mapping: {is_not_string_dict}"
+    data_fields = set(data.keys())
     class_fields = fields(datatype)
     for field in class_fields:
         field_type = field.type
@@ -65,6 +69,10 @@ def _validate_dataclass(data: Any, datatype: Type) -> str | None:
                 f"Value '{data.get(field_name)}' is not valid for "
                 f"field '{field_name}' of type {field_type} in {datatype}"
             )
+        if field_name in data_fields:
+            data_fields.remove(field_name)
+    if data_fields:
+        return f"Data had extra fields '{data_fields}'"
     return None
 
 
@@ -80,12 +88,13 @@ def validate(data: Any, datatype: Type[Any]) -> str | None:
         valid based on the given type,
         or None
     """
+    if datatype == Any:
+        return None
     if datatype in _basic_type_validators:
         return _basic_type_validators[datatype](data)
     if is_dataclass(datatype):
         return _validate_dataclass(data, datatype)
     original_type = get_origin(datatype)
-    print(original_type)
     if original_type == Union:
         return _validate_union(data, datatype)
     if original_type == list:
