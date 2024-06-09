@@ -12,7 +12,7 @@ class SamplePerson:
     income: float
     emails: List[str]
     relationships: Dict[str, str]
-    favorite_quote: Optional[str]
+    favorite_quote: Optional[str] = None
 
 
 @dataclass
@@ -100,7 +100,7 @@ def test_validate_lists(data, datatype, should_fail: bool):
         pytest.param(1.1, Dict[str, float], True, id="primitive_vs_dict"),
         pytest.param(["str"], Dict[str, str], True, id="list_vs_dict"),
         pytest.param(
-            SamplePerson("name", 1, False, 10.5, [], {}, None),
+            SamplePerson("name", 1, False, 10.5, [], {}),
             Dict[str, str],
             True,
             id="dataclass_vs_dict",
@@ -110,6 +110,41 @@ def test_validate_lists(data, datatype, should_fail: bool):
 def test_validate_dictionaries(data, datatype, should_fail: bool):
     mesg: str | None = validate(data, datatype)
     if should_fail:
+        assert mesg is not None, mesg
+    else:
+        assert mesg is None, mesg
+
+
+@pytest.mark.parametrize(
+    ["data", "datatype", "should_fail"],
+    [
+        pytest.param(
+            {"name": "name", "age": 1, "married": False,
+             "income": 10.5, "emails": [], "relationships": {}, "favorite_quote": "To be or not to be"},
+            SamplePerson,
+            False,
+            id="good_dataclass",
+        ),
+        pytest.param(
+            {"name": "name", "age": 1, "married": False,
+             "income": 10.5, "emails": [], "relationships": {}},
+            SamplePerson,
+            False,
+            id="good_dataclass_optional_field",
+        ),
+        pytest.param(
+            {"age": 1, "married": False,
+             "income": 10.5, "emails": [], "relationships": {}},
+            SamplePerson,
+            True,
+            id="good_dataclass_optional_field",
+        ),
+    ],
+)
+def test_validate_dataclasses(data, datatype, should_fail: bool):
+    mesg: str | None = validate(data, datatype)
+    if should_fail:
+        print(mesg)
         assert mesg is not None, mesg
     else:
         assert mesg is None, mesg
