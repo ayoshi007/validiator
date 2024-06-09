@@ -2,6 +2,7 @@
 lists, dicts, and dataclasses.
 """
 
+from types import NoneType
 from typing import Any, Callable, Sequence, Mapping, Union, Type, get_args, get_origin
 from dataclasses import is_dataclass, fields
 
@@ -15,7 +16,8 @@ def _validate_basic_type(datatype: Type) -> Callable[[Any], str | None]:
     return basic_type_validator
 
 
-_basic_type_validators = {t: _validate_basic_type(t) for t in (str, int, float, bool)}
+_basic_type_validators = {t: _validate_basic_type(
+    t) for t in (str, int, float, bool, NoneType)}
 
 
 def _validate_union(data: Any, datatype: Type[Union[Any, None]]) -> str | None:
@@ -56,11 +58,12 @@ def _validate_dataclass(data: Any, datatype: Type) -> str | None:
     for field in class_fields:
         field_type = field.type
         field_name = field.name
+
         mesg = validate(data.get(field_name), field_type)
         if mesg:
             return (
-                f"Value {data.get(field_name)} is not valid for"
-                f"field {field_name} of type {field_type} in {datatype}"
+                f"Value '{data.get(field_name)}' is not valid for "
+                f"field '{field_name}' of type {field_type} in {datatype}"
             )
     return None
 
@@ -82,6 +85,7 @@ def validate(data: Any, datatype: Type[Any]) -> str | None:
     if is_dataclass(datatype):
         return _validate_dataclass(data, datatype)
     original_type = get_origin(datatype)
+    print(original_type)
     if original_type == Union:
         return _validate_union(data, datatype)
     if original_type == list:
