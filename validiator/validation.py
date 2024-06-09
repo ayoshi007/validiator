@@ -77,7 +77,7 @@ def _validate_dataclass(data: Mapping[str, Any], datatype: Type) -> str | None:
 
 
 def validate(data: Any, datatype: Type[Any]) -> str | None:
-    """Validates the given data to the given data type.
+    """Validates the given data loaded from JSON to the given data type.
 
     Args:
         data (Any): the data to validate
