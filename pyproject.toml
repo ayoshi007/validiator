@@ -9,5 +9,5 @@ version = "0.1.0"
 authors = [
     {name = "ayoshi007"}
 ]
-description = "A no-dependency data validation and serialization library written in pure Python"
+description = "A no-dependency JSON data validation and serialization library written in pure Python"
 
