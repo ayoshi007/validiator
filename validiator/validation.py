@@ -16,8 +16,9 @@ def _validate_basic_type(datatype: Type) -> Callable[[Any], str | None]:
     return basic_type_validator
 
 
-_basic_type_validators = {t: _validate_basic_type(
-    t) for t in (str, int, float, bool, NoneType)}
+_basic_type_validators = {
+    t: _validate_basic_type(t) for t in (str, int, float, bool, NoneType)
+}
 
 
 def _validate_union(data: Any, datatype: Type[Union[Any, None]]) -> str | None:
