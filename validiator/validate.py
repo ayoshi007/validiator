@@ -12,6 +12,7 @@ def _validate_basic_type(datatype: Type) -> Callable[[Any], str | None]:
         if not isinstance(data, datatype):
             return f"Validate basic type: '{data}' is not type {datatype}"
         return None
+
     return basic_type_validator
 
 
@@ -60,7 +61,9 @@ def _validate_dict(data: Any, datatype: Type) -> str | None:
 def _validate_dataclass(data: Dict[str, Any], datatype: Type) -> str | None:
     is_not_string_dict = validate(data, Dict[str, Any])
     if is_not_string_dict:
-        return f"Validate dataclass: Data is not a string-keyed dict: {is_not_string_dict}"
+        return (
+            f"Validate dataclass: Data is not a string-keyed dict: {is_not_string_dict}"
+        )
     data_fields = set(data.keys())
     class_fields = fields(datatype)
     for field in class_fields:
@@ -69,9 +72,7 @@ def _validate_dataclass(data: Dict[str, Any], datatype: Type) -> str | None:
 
         mesg = validate(data.get(field_name), field_type)
         if mesg:
-            return (
-                f"Validate dataclass: Value '{data.get(field_name)}' is not valid:\n{mesg}"
-            )
+            return f"Validate dataclass: Value '{data.get(field_name)}' is not valid:\n{mesg}"
         if field_name in data_fields:
             data_fields.remove(field_name)
     if data_fields:
