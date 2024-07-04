@@ -1,11 +1,16 @@
 import math
+import datetime
 from dataclasses import fields, is_dataclass
-from typing import Dict, Union, Any
+from typing import Dict, Any
 
 _NON_GENERIC_TYPES = (str, int, float, bool, type(None))
 
 
 def _serialize_non_generic_type(data):
+    if isinstance(data, float) and (math.isnan(data) or math.isinf(data)):
+        return None
+    if isinstance(data, datetime.datetime):
+        return data.isoformat()
     return data
 
 
@@ -40,5 +45,6 @@ def _serialize_data(data):
 
 def serialize(data) -> Dict[str, Any]:
     if not is_dataclass(data):
-        raise ValueError(f"Type '{data.__class__.__name__}' is not a dataclass")
+        raise ValueError(
+            f"Type '{data.__class__.__name__}' is not a dataclass")
     return _serialize_data(data)

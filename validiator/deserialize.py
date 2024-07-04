@@ -1,5 +1,5 @@
 from dataclasses import is_dataclass, fields
-from typing import Union, List, Dict, get_args, get_origin
+from typing import Union, get_args, get_origin
 
 _NON_GENERIC_TYPES = (str, int, float, bool, type(None))
 
@@ -31,7 +31,8 @@ def _deserialize_union(data, datatype):
             return data
         except (ValueError, TypeError, KeyError, NameError):
             pass
-    raise ValueError(f"Cannot deserialize value '{data}' to types {union_types}")
+    raise ValueError(
+        f"Cannot deserialize value '{data}' to types {union_types}")
 
 
 def _deserialize_dataclass(data, datatype):
