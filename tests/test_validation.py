@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 import pytest
-from validiator.validation import validate
+from validiator.validate import validate
 
 
 @dataclass
