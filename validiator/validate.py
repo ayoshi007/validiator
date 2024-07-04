@@ -3,16 +3,15 @@ lists, dicts, and dataclasses.
 """
 
 from types import NoneType
-from typing import Any, Callable, Sequence, Mapping, Union, Type, get_args, get_origin
+from typing import Any, Callable, List, Dict, Union, Type, get_args, get_origin
 from dataclasses import is_dataclass, fields
 
 
 def _validate_basic_type(datatype: Type) -> Callable[[Any], str | None]:
     def basic_type_validator(data: Any) -> str | None:
         if not isinstance(data, datatype):
-            return f"'{data}' is not type {datatype}"
+            return f"Validate basic type: '{data}' is not type {datatype}"
         return None
-
     return basic_type_validator
 
 
@@ -23,41 +22,45 @@ _basic_type_validators = {
 
 def _validate_union(data: Any, datatype: Type[Union[Any, None]]) -> str | None:
     possible_types = get_args(datatype)
-    matched_type = None
+    mesg = None
     for t in possible_types:
-        if isinstance(data, t):
-            matched_type = t
+        mesg = validate(data, t)
+        if not mesg:
             break
-    if matched_type:
-        return validate(data, matched_type)
-    return f"'{data}' is not of type {possible_types}"
+    if mesg:
+        return f"Validate union: could not validate data on union of types {possible_types}:\n{mesg}"
+    return None
 
 
 def _validate_list(data: Any, datatype: type[list]) -> str | None:
-    if not isinstance(data, Sequence):
-        return "Data is not a sequence type"
+    if not isinstance(data, List):
+        return "Validate list: data is not a List type"
     sequence_type = get_args(datatype)[0]
     for elem in data:
         mesg = validate(elem, sequence_type)
         if mesg:
-            return f"Sequence contains is not of type {datatype}: {mesg}"
+            return f"Validate list: list contains an element not of type {datatype}:\n{mesg}"
     return None
 
 
 def _validate_dict(data: Any, datatype: Type) -> str | None:
-    if not isinstance(data, Mapping):
-        return "Data is not a mapping type"
+    if not isinstance(data, Dict):
+        return "Validate dict: Data is not a Dict type"
     key_type, value_type = get_args(datatype)
     for k, v in data.items():
-        if validate(k, key_type) or validate(v, value_type):
-            return f"Mapping {k}: {v} is not of type {key_type}: {value_type}"
+        key_mesg = validate(k, key_type)
+        if key_mesg:
+            return f"Validate dict: {k} not of type {key_type}:\n{key_mesg}"
+        value_mesg = validate(v, value_type)
+        if value_mesg:
+            return f"Validate dict: {v} not of type {value_type}:\n{value_mesg}"
     return None
 
 
-def _validate_dataclass(data: Mapping[str, Any], datatype: Type) -> str | None:
-    is_not_string_dict = validate(data, dict[str, Any])
+def _validate_dataclass(data: Dict[str, Any], datatype: Type) -> str | None:
+    is_not_string_dict = validate(data, Dict[str, Any])
     if is_not_string_dict:
-        return f"Data is not a string-keyed mapping: {is_not_string_dict}"
+        return f"Validate dataclass: Data is not a string-keyed dict: {is_not_string_dict}"
     data_fields = set(data.keys())
     class_fields = fields(datatype)
     for field in class_fields:
@@ -67,13 +70,12 @@ def _validate_dataclass(data: Mapping[str, Any], datatype: Type) -> str | None:
         mesg = validate(data.get(field_name), field_type)
         if mesg:
             return (
-                f"Value '{data.get(field_name)}' is not valid for "
-                f"field '{field_name}' of type {field_type} in {datatype}"
+                f"Validate dataclass: Value '{data.get(field_name)}' is not valid:\n{mesg}"
             )
         if field_name in data_fields:
             data_fields.remove(field_name)
     if data_fields:
-        return f"Data had extra fields '{data_fields}'"
+        return f"Validate dataclass: Data had extra fields '{data_fields}'"
     return None
 
 
@@ -102,11 +104,7 @@ def validate(data: Any, datatype: Type[Any]) -> str | None:
         return _validate_list(data, datatype)
     if original_type == dict:
         return _validate_dict(data, datatype)
-    if original_type == tuple:
-        pass
-    if original_type == set:
-        pass
     raise ValueError(
-        f"Cannot validate type {datatype} (must use str, int, float,"
+        f"Cannot validate type {datatype} (must use str, int, float, "
         "bool, List, Dict, Union, or dataclasses using these types)"
     )
